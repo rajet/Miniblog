@@ -19,6 +19,17 @@ namespace Miniblog.Controllers
 
         public ActionResult Login()
         {
+            /*var username = Request["username"];
+            if(username == "admin")
+            {
+                Session["username"] = "admin";
+                return RedirectToAction("Dashboard", "Admin");
+            }
+            else if(username == "user")
+            {
+                Session["username"] = "user";
+                return RedirectToAction("Dashboard", "User");
+            }*/
             // In order to make this code work -> replace all UPPERCASE-Placeholders with the corresponding data!
             var username = Request["username"];
             var password = Request["password"];
