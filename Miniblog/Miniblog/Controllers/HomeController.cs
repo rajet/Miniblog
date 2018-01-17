@@ -13,7 +13,7 @@ namespace Miniblog.Controllers
 {
     public class HomeController : Controller
     {
-        private string connectionString = @"Data Source=(local);AttachDbFilename=D:\db\localdb\Data\miniblog.mdf;database=miniblog;Integrated Security=True;";
+        private string connectionString = @"Data Source=(local);AttachDbFilename=|DataDirectory|\miniblog.mdf;database=miniblog;Integrated Security=True;";
 
         public ActionResult Index()
         {
