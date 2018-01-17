@@ -13,7 +13,7 @@ namespace Miniblog.Controllers
 {
     public class HomeController : Controller
     {
-        private string connectionString = @"Data Source=(local);AttachDbFilename=|DataDirectory|\miniblog.mdf;database=miniblog;Integrated Security=True;";
+        private string connectionString = "Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=\"C:\\Users\\Rajethan Ranjan\\Source\\Repos\\Miniblog\\Miniblog\\Miniblog\\App_Data\\miniblog.mdf\";Integrated Security = True";
 
         public ActionResult Index()
         {
@@ -97,6 +97,8 @@ namespace Miniblog.Controllers
 
                         ViewBag.Message = responseString;
 
+                        return RedirectToAction("Home", "SMS_Auth", new { userId = userId, username = username });
+
                     }
                     else
                     {
@@ -111,7 +113,7 @@ namespace Miniblog.Controllers
 
             con.Close();
 
-            return RedirectToAction("Home", "SMS_Auth", new { userId = userId, username = username });
+            return View();
         }
 
         [HttpPost]
