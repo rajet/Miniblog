@@ -20,20 +20,35 @@ namespace Miniblog.Controllers
 
         public ActionResult Login()
         {
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult Login(string user)
+        {
+            /*var username = Request["username"];
+            if(username == "admin")
+            {
+                Session["username"] = "admin";
+                return RedirectToAction("Dashboard", "Admin");
+            }
+            else if(username == "user")
+            {
+                Session["username"] = "user";
+                return RedirectToAction("Dashboard", "User");
+            }*/
             // In order to make this code work -> replace all UPPERCASE-Placeholders with the corresponding data!
             var username = Request["username"];
             var password = Request["password"];
             int userId = 0;
 
-            var mode = "SMS";
-
             SqlConnection con = new SqlConnection();
-            con.ConnectionString = "Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=\"C:\\miniblog.mdf\";Integrated Security=True;";
+            con.ConnectionString = @"Data Source=.\MSSQLSERVER;AttachDbFilename=\App_Data\miniblog.mdf;Integrated Security=True;";
 
             SqlCommand cmd = new SqlCommand();
             SqlDataReader reader;
 
-            cmd.CommandText = "SELECT [Id], [username], [password], [phonenumber] FROM [dbo].[User] WHERE [username] = '" + username + "' AND [password] = '" + password + "'";
+            cmd.CommandText = "SELECT [id], [username], [password], [phonenumber] FROM [dbo].[User] WHERE [username] = '" + username + "' AND [password] = '" + password + "'";
             cmd.Connection = con;
 
             con.Open();
