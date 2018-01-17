@@ -17,7 +17,8 @@ namespace Miniblog.Controllers
 
         public ActionResult Index()
         {
-            return View();
+            return RedirectToAction("Login", "Home");
+            //return View();
         }
 
         public ActionResult Login()
@@ -71,9 +72,9 @@ namespace Miniblog.Controllers
                         string secret = Convert.ToBase64String(time.Concat(key).ToArray());
 
                         string expiry = DateTime.Now.AddMinutes(5).ToString();
-
-                        cmd.CommandText = "INSERT INTO [dbo].[Token] (User_id, Tokenstring, Expiry) VALUES ('" + userId + "', '" + secret + "', '" + expiry + "')";
-                        cmd.ExecuteNonQuery();
+                        
+                        //cmd.CommandText = "INSERT INTO [dbo].[Token] (User_id, Tokenstring, Expiry) VALUES ('" + userId + "', '" + secret + "', '" + expiry + "')";
+                        //cmd.ExecuteNonQuery();
 
                         var postData = "api_key=1cb5b15d";
                         postData += "&api_secret=ea21d1dbbd4f86d4";
@@ -96,18 +97,18 @@ namespace Miniblog.Controllers
 
                         ViewBag.Message = responseString;
 
-                        return RedirectToAction("Home", "SMS_Auth", new { userId = userId, username = username });
-
+                        return RedirectToAction("SMS_Auth", "Home", new { userId = userId, username = username });
+                        //return RedirectToAction("Contact", "Home");
                     }
                     else
                     {
-                        ViewBag.Message = "Wrong Credentials";
+                        ViewBag.Message = "Username oder Passwort ist falsch";
                     }
                 }
             }
             else
             {
-                ViewBag.Message = "Username or password is wrong!";
+                ViewBag.Message = "Something went wrong!";
             }
 
             con.Close();
@@ -115,9 +116,10 @@ namespace Miniblog.Controllers
             return View();
         }
 
-        [HttpPost]
+        //[HttpPost]
         public ActionResult SMS_Auth(int userId, string username)
         {
+            
             SqlConnection con = new SqlConnection();
             con.ConnectionString = connectionString;
 
@@ -139,7 +141,6 @@ namespace Miniblog.Controllers
                     {
                         string sms_key = Request["sms_key"];
                         string secret = reader["Tokenstring"].ToString();
-
                         if (sms_key == secret)
                         {
                             Session["userId"] = userId;
@@ -170,7 +171,7 @@ namespace Miniblog.Controllers
             }
 
             con.Close();
-
+            
             return View();
         }
 

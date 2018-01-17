@@ -152,10 +152,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_Data\miniblog.mdf" />
-    <Content Include="App_Data\miniblog2.mdf" />
-    <Content Include="App_Data\miniblog2_log.ldf">
-      <DependentUpon>miniblog2.mdf</DependentUpon>
-    </Content>
     <Content Include="App_Data\miniblog_log.ldf">
       <DependentUpon>miniblog.mdf</DependentUpon>
     </Content>
