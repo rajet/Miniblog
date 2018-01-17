@@ -39,14 +39,13 @@ namespace Miniblog.Controllers
                 Session["username"] = "user";
                 return RedirectToAction("Dashboard", "User");
             }*/
-            // In order to make this code work -> replace all UPPERCASE-Placeholders with the corresponding data!
+
             var username = Request["username"];
             var password = Request["password"];
             int userId = 0;
 
             SqlConnection con = new SqlConnection();
             con.ConnectionString = connectionString;
-            //con.ConnectionString = @"Data Source=(local);AttachDbFilename=|DataDirectory|\miniblog.mdf;database=miniblog;Integrated Security=True;";
 
             SqlCommand cmd = new SqlCommand();
             SqlDataReader reader;
@@ -125,7 +124,7 @@ namespace Miniblog.Controllers
             SqlCommand cmd = new SqlCommand();
             SqlDataReader reader;
 
-            cmd.CommandText = "SELECT [Id], [Username], [Password], [Phonenumber] FROM [dbo].[Token] WHERE [User_id] = '" + userId + "'";
+            cmd.CommandText = "SELECT * FROM [dbo].[Token] WHERE [User_id] = '" + userId + "'";
             cmd.Connection = con;
 
             con.Open();
@@ -145,6 +144,15 @@ namespace Miniblog.Controllers
                         {
                             Session["userId"] = userId;
                             Session["username"] = username;
+
+                            cmd.CommandText = "UPDATE [dbo].[Token] SET DELETED = '" + DateTime.Now.ToString() + "' WHERE [User_id] = '" + userId + "'";
+                            cmd.ExecuteNonQuery();
+
+                            cmd.CommandText = "INSERT INTO [dbo].[Userlog] (User_id, Action) VALUES ('" + userId + "', '" + DateTime.Now.ToString() + ": login')";
+                            cmd.ExecuteNonQuery();
+
+                            cmd.CommandText = "INSERT INTO [dbo].[Userlogin] (User_id, User_ipaddress, SessionId, Createon) VALUES ('" + userId + "', '" + Dns.GetHostByName(Dns.GetHostName()).AddressList[0].ToString() + "', '" + Session.SessionID + "', '" + DateTime.Now.ToString() + "')";
+                            cmd.ExecuteNonQuery();
 
                             return RedirectToAction("Home", "Index");
                         }
