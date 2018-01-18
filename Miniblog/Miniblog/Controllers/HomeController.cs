@@ -13,7 +13,7 @@ namespace Miniblog.Controllers
 {
     public class HomeController : Controller
     {
-        private string connectionString = "Data Source=.\\SQLEXPRESS;AttachDbFilename=\"C:\\Users\\Ravinthiran\\Documents\\GitHub\\miniblog\\Miniblog\\Miniblog\\App_Data\\miniblog.mdf\";Integrated Security = True";
+        private string connectionString = "Data Source=.\\SQLEXPRESS;AttachDbFilename=\"C:\\Users\\Ravinthiran\\Documents\\GitHub\\miniblog\\Miniblog\\Miniblog\\App_Data\\miniblog.mdf\";Integrated Security = True;";
 
         public ActionResult Index()
         {
@@ -101,12 +101,13 @@ namespace Miniblog.Controllers
                         var secret = Convert.ToBase64String(time.Concat(key).ToArray());
                         //var secret = "Test";
 
-                        string expiry = DateTime.Now.AddMinutes(5).ToString();
+                        string expiry = DateTime.Now.AddMinutes(5).ToString("yyyy-MM-dd HH:mm:ss");
 
                         using (SqlConnection conection = new SqlConnection(connectionString))
                         {
                             SqlCommand cmd2 = new SqlCommand();
                             cmd2.CommandText = "INSERT INTO [dbo].[Token] (User_id, Tokenstring, Expiry) VALUES ('" + userId + "', '" + secret + "', '" + expiry + "')";
+                            //cmd2.CommandText = "INSERT INTO [dbo].[Token] (Id, User_id, Tokenstring, Expiry) VALUES (22, '" + userId + "', '12345678901234567890', '" + expiry + "')";
                             cmd2.Connection = conection;
                             conection.Open();
                             cmd2.ExecuteNonQuery();
@@ -152,17 +153,26 @@ namespace Miniblog.Controllers
             return View();
         }
 
-        //[HttpPost]
         public ActionResult SMS_Auth(int userId, string username)
         {
-            
+            ViewBag.userId = userId;
+            ViewBag.username = username;
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult SMS_Auth()
+        {
+            string userId = Request["userId"];
+            string username = Request["username"];
+
             SqlConnection con = new SqlConnection();
             con.ConnectionString = connectionString;
 
             SqlCommand cmd = new SqlCommand();
             SqlDataReader reader;
 
-            cmd.CommandText = "SELECT * FROM [dbo].[Token] WHERE [User_id] = '" + userId + "'";
+            cmd.CommandText = "SELECT * FROM [dbo].[Token] WHERE [User_id] = '" + Request["userId"] + "'";
             cmd.Connection = con;
 
             con.Open();
@@ -173,19 +183,19 @@ namespace Miniblog.Controllers
             {
                 while (reader.Read())
                 {
-                    if (Convert.ToDateTime(reader["Expriy"]) > DateTime.Now)
+                    if (Convert.ToDateTime(reader["Expiry"]) > DateTime.Now)
                     {
                         string sms_key = Request["sms_key"];
                         string secret = reader["Tokenstring"].ToString();
                         if (sms_key == secret)
                         {
-                            Session["userId"] = userId;
-                            Session["username"] = username;
+                            Session["userId"] = Request["userId"];
+                            Session["username"] = Request["username"];
 
                             using (SqlConnection conection = new SqlConnection(connectionString))
                             {
                                 SqlCommand cmd2 = new SqlCommand();
-                                cmd2.CommandText = "UPDATE [dbo].[Token] SET DELETED = '" + DateTime.Now.ToString() + "' WHERE [User_id] = '" + userId + "'";
+                                cmd2.CommandText = "UPDATE [dbo].[Token] SET DELETED = '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "' WHERE [User_id] = '" + userId + "'";
                                 cmd2.Connection = conection;
                                 conection.Open();
                                 cmd2.ExecuteNonQuery();
@@ -195,7 +205,8 @@ namespace Miniblog.Controllers
                             using (SqlConnection conection = new SqlConnection(connectionString))
                             {
                                 SqlCommand cmd2 = new SqlCommand();
-                                cmd2.CommandText = "INSERT INTO [dbo].[Userlog] (User_id, Action) VALUES ('" + userId + "', '" + DateTime.Now.ToString() + ": login')";
+                                cmd2.CommandText = "INSERT INTO [dbo].[Userlog] (User_id, Action) VALUES ('" + userId + "', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + ": login')";
+                                //cmd2.CommandText = "INSERT INTO [dbo].[Userlog] (Id, User_id, Action) VALUES (4, '" + userId + "', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + ": login')";
                                 cmd2.Connection = conection;
                                 conection.Open();
                                 cmd2.ExecuteNonQuery();
@@ -205,14 +216,15 @@ namespace Miniblog.Controllers
                             using (SqlConnection conection = new SqlConnection(connectionString))
                             {
                                 SqlCommand cmd2 = new SqlCommand();
-                                cmd2.CommandText = "INSERT INTO [dbo].[Userlogin] (User_id, User_ipaddress, SessionId, Createon) VALUES ('" + userId + "', '" + Dns.GetHostByName(Dns.GetHostName()).AddressList[0].ToString() + "', '" + Session.SessionID + "', '" + DateTime.Now.ToString() + "')";
+                                cmd2.CommandText = "INSERT INTO [dbo].[Userlogin] (User_id, User_ipaddress, SessionId, Createon) VALUES (" + userId + "', '" + Dns.GetHostByName(Dns.GetHostName()).AddressList[0].ToString() + "', '" + Session.SessionID + "', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "')";
+                                //cmd2.CommandText = "INSERT INTO [dbo].[Userlogin] (Id, User_id, User_ipaddress, SessionId, Createon) VALUES (4, '" + userId + "', '" + Dns.GetHostByName(Dns.GetHostName()).AddressList[0].ToString() + "', 1, '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "')";
                                 cmd2.Connection = conection;
                                 conection.Open();
                                 cmd2.ExecuteNonQuery();
                                 conection.Close();
                             }
 
-                            return RedirectToAction("Home", "Index");
+                            return RedirectToAction("Index", "Home");
                         }
                         else
                         {

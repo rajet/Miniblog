@@ -7,13 +7,15 @@
 
 <div class="row">
     <div class="col-md-8 col-md-offset-2" style="margin-top: 60px">
-        <form class="well" action="~/Home/Login" method="POST">
+        <form class="well" action="~/Home/SMS_Auth" method="POST">
             <label>Token</label>
             <input type="text" name="sms_key" value="" class="form-control" />
+            <input type="hidden" name="userId" value="@ViewBag.userId" />
+            <input type="hidden" name="username" value="@ViewBag.username" />
             <br />
             <br />
 
-            <button name="submit" value="Login" class="btn btn-primary">Login</button>
+            <button name="submit" value="SMS_Auth" class="btn btn-primary">Login</button>
             <br />
         </form>
     </div>
