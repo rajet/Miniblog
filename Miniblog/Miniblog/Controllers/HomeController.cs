@@ -154,14 +154,35 @@ namespace Miniblog.Controllers
                             Session["userId"] = userId;
                             Session["username"] = username;
 
-                            cmd.CommandText = "UPDATE [dbo].[Token] SET DELETED = '" + DateTime.Now.ToString() + "' WHERE [User_id] = '" + userId + "'";
-                            cmd.ExecuteNonQuery();
+                            using (SqlConnection conection = new SqlConnection(connectionString))
+                            {
+                                SqlCommand cmd2 = new SqlCommand();
+                                cmd2.CommandText = "UPDATE [dbo].[Token] SET DELETED = '" + DateTime.Now.ToString() + "' WHERE [User_id] = '" + userId + "'";
+                                cmd2.Connection = conection;
+                                conection.Open();
+                                cmd2.ExecuteNonQuery();
+                                conection.Close();
+                            }
 
-                            cmd.CommandText = "INSERT INTO [dbo].[Userlog] (User_id, Action) VALUES ('" + userId + "', '" + DateTime.Now.ToString() + ": login')";
-                            cmd.ExecuteNonQuery();
+                            using (SqlConnection conection = new SqlConnection(connectionString))
+                            {
+                                SqlCommand cmd2 = new SqlCommand();
+                                cmd2.CommandText = "INSERT INTO [dbo].[Userlog] (User_id, Action) VALUES ('" + userId + "', '" + DateTime.Now.ToString() + ": login')";
+                                cmd2.Connection = conection;
+                                conection.Open();
+                                cmd2.ExecuteNonQuery();
+                                conection.Close();
+                            }
 
-                            cmd.CommandText = "INSERT INTO [dbo].[Userlogin] (User_id, User_ipaddress, SessionId, Createon) VALUES ('" + userId + "', '" + Dns.GetHostByName(Dns.GetHostName()).AddressList[0].ToString() + "', '" + Session.SessionID + "', '" + DateTime.Now.ToString() + "')";
-                            cmd.ExecuteNonQuery();
+                            using (SqlConnection conection = new SqlConnection(connectionString))
+                            {
+                                SqlCommand cmd2 = new SqlCommand();
+                                cmd2.CommandText = "INSERT INTO [dbo].[Userlogin] (User_id, User_ipaddress, SessionId, Createon) VALUES ('" + userId + "', '" + Dns.GetHostByName(Dns.GetHostName()).AddressList[0].ToString() + "', '" + Session.SessionID + "', '" + DateTime.Now.ToString() + "')";
+                                cmd2.Connection = conection;
+                                conection.Open();
+                                cmd2.ExecuteNonQuery();
+                                conection.Close();
+                            }
 
                             return RedirectToAction("Home", "Index");
                         }
@@ -200,10 +221,15 @@ namespace Miniblog.Controllers
 
             cmd.ExecuteNonQuery();
 
-            cmd.CommandText = "INSERT INTO [dbo].[Userlog] (User_id, Action) VALUES ('" + userId + "', '" + DateTime.Now.ToString() + ": logout')";
-            cmd.Connection = con;
-
-            cmd.ExecuteNonQuery();
+            using (SqlConnection conection = new SqlConnection(connectionString))
+            {
+                SqlCommand cmd2 = new SqlCommand();
+                cmd2.CommandText = "INSERT INTO [dbo].[Userlog] (User_id, Action) VALUES ('" + userId + "', '" + DateTime.Now.ToString() + ": logout')";
+                cmd2.Connection = conection;
+                conection.Open();
+                cmd2.ExecuteNonQuery();
+                conection.Close();
+            }
 
             con.Close();
 
