@@ -17,8 +17,36 @@ namespace Miniblog.Controllers
 
         public ActionResult Index()
         {
-            return RedirectToAction("Login", "Home");
-            //return View();
+            SqlConnection con = new SqlConnection();
+            con.ConnectionString = connectionString;
+
+            SqlCommand cmd = new SqlCommand();
+            SqlDataReader reader;
+
+            cmd.CommandText = "SELECT [Id], [Title], [Content] FROM [dbo].[Post]";
+            cmd.Connection = con;
+            con.Open();
+            reader = cmd.ExecuteReader();
+
+            string content = "";
+
+            if (reader.Read())
+            {
+                while (reader.Read())
+                {
+                    content += "Id:" + reader.GetInt32(0) + "<h1>" + reader.GetString(1) + "</h1>";
+                    //ViewBag.Title = reader.GetString(1);
+                    //ViewBag.Message = reader.GetString(2);
+                }
+                ViewBag.Message = content;
+            }
+            else
+            {
+                ViewBag.Data = "No rows found.";
+            }
+            con.Close();
+            //return RedirectToAction("Login", "Home");
+            return View();
         }
 
         public ActionResult Login()
@@ -69,7 +97,8 @@ namespace Miniblog.Controllers
 
                         byte[] time = BitConverter.GetBytes(DateTime.UtcNow.ToBinary());
                         byte[] key = Guid.NewGuid().ToByteArray();
-                        string secret = Convert.ToBase64String(time.Concat(key).ToArray());
+                        var secret = Convert.ToBase64String(time.Concat(key).ToArray());
+                        //var secret = "Test";
 
                         string expiry = DateTime.Now.AddMinutes(5).ToString();
                         
@@ -98,7 +127,6 @@ namespace Miniblog.Controllers
                         ViewBag.Message = responseString;
 
                         return RedirectToAction("SMS_Auth", "Home", new { userId = userId, username = username });
-                        //return RedirectToAction("Contact", "Home");
                     }
                     else
                     {
