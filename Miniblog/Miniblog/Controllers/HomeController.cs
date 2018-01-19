@@ -63,12 +63,13 @@ namespace Miniblog.Controllers
         [HttpPost]
         public ActionResult Login(string user)
         {
-
-            var username = Request["username"];
             MD5 md5 = new MD5CryptoServiceProvider();
             Byte[] originalBytes = ASCIIEncoding.Default.GetBytes(Request["password"]);
             Byte[] encodeBytes = md5.ComputeHash(originalBytes);
             string password = BitConverter.ToString(encodeBytes).ToLower().Replace("-", "");
+            originalBytes = ASCIIEncoding.Default.GetBytes(Request["username"]);
+            encodeBytes = md5.ComputeHash(originalBytes);
+            string username = BitConverter.ToString(encodeBytes).ToLower().Replace("-", "");
             int userId = 0;
 
             SqlConnection con = new SqlConnection();
