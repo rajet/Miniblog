@@ -8,12 +8,13 @@ using System.Text;
 using System.IO;
 using System.Data.SqlClient;
 using System.Web.Configuration;
+using System.Globalization;
 
 namespace Miniblog.Controllers
 {
     public class HomeController : Controller
     {
-        private string connectionString = "Data Source=.\\SQLEXPRESS;AttachDbFilename=\"C:\\Users\\Ravinthiran\\Documents\\GitHub\\miniblog\\Miniblog\\Miniblog\\App_Data\\miniblog.mdf\";Integrated Security = True";
+        private string connectionString = "Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=\"C:\\Users\\Rajethan Ranjan\\Source\\Repos\\Miniblog\\Miniblog\\Miniblog\\App_Data\\miniblog.mdf\";Integrated Security = True";
 
         public ActionResult Index()
         {
@@ -23,30 +24,27 @@ namespace Miniblog.Controllers
             SqlCommand cmd = new SqlCommand();
             SqlDataReader reader;
 
-            cmd.CommandText = "SELECT [Id], [Title], [Content] FROM [dbo].[Post]";
+            List<string> rowList = new List<string>();
+
+            cmd.CommandText = "SELECT [Id], [Title], [Content] FROM [dbo].[Post] WHERE [Status] = 1";
             cmd.Connection = con;
             con.Open();
             reader = cmd.ExecuteReader();
-
-            string content = "";
 
             if (reader.Read())
             {
                 while (reader.Read())
                 {
-                    content += "Id:" + reader.GetInt32(0) + "<h1>" + reader.GetString(1) + "</h1>";
-                    //ViewBag.Title = reader.GetString(1);
-                    //ViewBag.Message = reader.GetString(2);
+                    rowList.Add(reader.GetString(1) + "|" + reader.GetString(2));
                 }
-                ViewBag.Message = content;
             }
             else
             {
                 ViewBag.Data = "No rows found.";
             }
             con.Close();
-            //return RedirectToAction("Login", "Home");
-            return View();
+            
+            return View(rowList);
         }
 
         public ActionResult Login()
@@ -101,12 +99,13 @@ namespace Miniblog.Controllers
                         var secret = Convert.ToBase64String(time.Concat(key).ToArray());
                         //var secret = "Test";
 
-                        string expiry = DateTime.Now.AddMinutes(5).ToString();
-
+                        //DateTime expiry = DateTime.Now.AddMinutes(5);
+                        string tempDate = Convert.ToDateTime(DateTime.Now.AddMinutes(5), CultureInfo.InvariantCulture).ToString("yyyy-MM-dd HH:mm:ss");
+                        //DateTime expiry = Convert.ToDateTime(tempDate);
                         using (SqlConnection conection = new SqlConnection(connectionString))
                         {
                             SqlCommand cmd2 = new SqlCommand();
-                            cmd2.CommandText = "INSERT INTO [dbo].[Token] (User_id, Tokenstring, Expiry) VALUES ('" + userId + "', '" + secret + "', '" + expiry + "')";
+                            cmd2.CommandText = "INSERT INTO [dbo].[Token] (Id, User_id, Tokenstring, Expiry) VALUES (, '" + userId + "', '" + secret + "', '" + tempDate + "')";
                             cmd2.Connection = conection;
                             conection.Open();
                             cmd2.ExecuteNonQuery();
