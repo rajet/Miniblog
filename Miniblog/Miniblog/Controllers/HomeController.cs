@@ -14,6 +14,38 @@ using System.Security.Cryptography;
 
 namespace Miniblog.Controllers
 {
+    /*
+    * Login Accounts: "admin", "rajet", "kerthdi"
+    * Passwörter: für alle Accounts ist es der Passwort "test"
+    *
+    * Aufgaben)
+    * 1.) Wir haben uns für den MD5-Hash Algorithmus entschieden, da dieser zum
+    * 1. immer eine begrenzte Grösse hat (geringer Speicherbelastung)
+    * 2. schnell generiert ist, wodurch die Applikation keine längeren Algorithmen durchackern muss
+    * und 3. ist die Sicherheit gewährleistet durch genügenden Sicherheitsmassnahmen, wodurch bei knacken des 
+    * Md5-Hash Algorithmen keine Gefahr entstehen sollte.
+    * Ausserdem denken wir, als Betreiber einer Blog-Seite sind wir für Hacker nicht wirklich ein grosses
+    * Ziel. (Risiko zu Ertrag viel zu hoch)
+    * 
+    * 2.) Dadurch das wir jeweils die Ip-Adresse mitverfolgen können, haben wir die Möglichkeit zu überprüfen 
+    * ob der User sich in seiner gewohnten Umgebung aufhält. Falls dies nicht der Fall sein sollte, 
+    * Eindringungsgefahr bspw. von China oder NY, können wir die Accounts immernoch durch einen Algorithmus
+    * sperren lassen und den User später darauf aufmerksam machen.
+    * 
+    * 3.) 
+    * User versucht sich einzuloggen...
+    * Tool überprüft seinen Standort...
+    * User ist im gewohnten Bereich akzeptiert...
+    * 
+    * User versucht sich einzuloggen...
+    * Tool überprüft seinen Standort....
+    * User ist nicht im gewohnten Bereich, nicht akzeptiert...
+    * User wird vom Tool vorübergehend auf die Blacklist gesetzt...
+    * User erhält eine E-Mail Adresse um diese Ip-Adresse zu genehmigen und ist somit wieder genehmigt
+    * falls er wirklich der User ist...
+    * Andernfalls bleibt das Account weiterhin gesperrt bis der User sich aus einem gewohnten Bereich
+    * einloggt... 
+    */
     public class HomeController : Controller
     {
         private string connectionString = "Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=\"C:\\Users\\Rajethan Ranjan\\Source\\Repos\\Miniblog\\Miniblog\\Miniblog\\App_Data\\miniblog.mdf\";Integrated Security = True";
