@@ -1,12 +1,15 @@
-﻿@{ 
+﻿@using Miniblog.ViewModel;
+@{ 
     ViewBag.Title = "Index";
 }
 
 <h2>Dashboard</h2>
 
-@model List<string>
-@{ int i = 0; }
-@foreach(var item in Model)
+@model List<Dashboard>
+@foreach(Dashboard item in Model)
 {
-
+    <a href="/Home/DetailView?cid=@item.Id">
+        <h2>@item.Title</h2>
+        <p>@item.Content</p>
+    </a>
 }

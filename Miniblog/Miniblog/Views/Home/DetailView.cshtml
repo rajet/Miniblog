@@ -1,0 +1,29 @@
+﻿@using Miniblog.ViewModel;
+@{
+    ViewBag.Title = "DetailView";
+}
+
+@model DashboardDetail
+<h1>Titel: @Model.Title</h1>
+<p>Beschreibung: @Model.Description</p>
+<p>Inhalt: @Model.Content</p>
+<p>Erstell am: @Model.CreatedOn</p>
+@foreach (string item in Model.CommentList)
+{
+    <p style="color: red; font-style: italic;">@item</p>
+}
+
+<div class="row">
+    <div class="col-md-8 col-md-offset-2" style="margin-top: 60px">
+        <form class="well" action="~/Home/DetailView" method="GET">
+            <input type="text" name="cid" value="@Model.Id" class="form-control" style="display: none;"/>
+            <label>Kommentar:</label>
+            <input type="text" name="commentfield" value="" class="form-control" required/>
+            <br />
+
+            <button name="submit" value="Send" class="btn btn-primary">Absenden</button>
+            <br />
+            @Html.Raw(ViewBag.Message)
+        </form>
+    </div>
+</div>

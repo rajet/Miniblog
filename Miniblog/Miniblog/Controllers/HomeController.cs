@@ -9,12 +9,15 @@ using System.IO;
 using System.Data.SqlClient;
 using System.Web.Configuration;
 using System.Globalization;
+using Miniblog.ViewModel;
+using System.Security.Cryptography;
 
 namespace Miniblog.Controllers
 {
     public class HomeController : Controller
     {
-        private string connectionString = "Data Source=.\\SQLEXPRESS;AttachDbFilename=\"C:\\Users\\Ravinthiran\\Documents\\GitHub\\miniblog\\Miniblog\\Miniblog\\App_Data\\miniblog.mdf\";Integrated Security = True;";
+        private string connectionString = "Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=\"C:\\Users\\Rajethan Ranjan\\Source\\Repos\\Miniblog\\Miniblog\\Miniblog\\App_Data\\miniblog.mdf\";Integrated Security = True";
+        //private string connectionString = "Data Source=.\\SQLEXPRESS;AttachDbFilename=\"C:\\Users\\Ravinthiran\\Documents\\GitHub\\miniblog\\Miniblog\\Miniblog\\App_Data\\miniblog.mdf\";Integrated Security = True;";
 
         public ActionResult Index()
         {
@@ -23,19 +26,23 @@ namespace Miniblog.Controllers
 
             SqlCommand cmd = new SqlCommand();
             SqlDataReader reader;
-
-            List<string> rowList = new List<string>();
-
-            cmd.CommandText = "SELECT [Id], [Title], [Content] FROM [dbo].[Post] WHERE [Status] = 1";
+            
+            List<Dashboard> dashboardList = new List<Dashboard>();
+            
+            cmd.CommandText = "SELECT [Id], [Title], [Content] FROM [dbo].[Post]";
             cmd.Connection = con;
             con.Open();
             reader = cmd.ExecuteReader();
 
-            if (reader.Read())
+            if (reader.HasRows)
             {
                 while (reader.Read())
                 {
-                    rowList.Add(reader.GetString(1) + "|" + reader.GetString(2));
+                    Dashboard item = new Dashboard();
+                    item.Id = reader.GetInt32(0);
+                    item.Title = reader.GetString(1);
+                    item.Content = reader.GetString(2);
+                    dashboardList.Add(item);
                 }
             }
             else
@@ -44,7 +51,8 @@ namespace Miniblog.Controllers
             }
             con.Close();
             
-            return View(rowList);
+            return View(dashboardList);
+            //return View();
         }
 
         public ActionResult Login()
@@ -55,19 +63,11 @@ namespace Miniblog.Controllers
         [HttpPost]
         public ActionResult Login(string user)
         {
-            /*var username = Request["username"];
-            if(username == "admin")
-            {
-                Session["username"] = "admin";
-                return RedirectToAction("Dashboard", "Admin");
-            }
-            else if(username == "user")
-            {
-                Session["username"] = "user";
-                return RedirectToAction("Dashboard", "User");
-            }*/
 
             var username = Request["username"];
+            //MD5 md5 = new MD5CryptoServiceProvider();
+            //Byte[] originalBytes = ASCIIEncoding.Default.GetBytes(Request["password"]);
+            //Byte[] encodeBytes = md5.ComputeHash(originalBytes);
             var password = Request["password"];
             int userId = 0;
 
@@ -277,7 +277,64 @@ namespace Miniblog.Controllers
 
             return RedirectToAction("Home", "Login");
         }
+        [HttpGet]
+        public ActionResult DetailView()
+        {
+            int cid = Int32.Parse(Request["cid"]);
+            if (Request["commentfield"] != null)
+            {
+                using (SqlConnection conection = new SqlConnection(connectionString))
+                {
+                    SqlCommand cmd2 = new SqlCommand();
+                    cmd2.CommandText = "INSERT INTO [dbo].[Comment] (Post_id, Comment, Createon) VALUES ('" + cid + "', '" + Request["commentfield"] + "' ,'" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "')";
+                    cmd2.Connection = conection;
+                    conection.Open();
+                    cmd2.ExecuteNonQuery();
+                    conection.Close();
+                }
+            }
+            SqlConnection con = new SqlConnection();
+            con.ConnectionString = connectionString;
 
+            SqlCommand cmd = new SqlCommand();
+            SqlDataReader reader;
+            DashboardDetail detailView = new DashboardDetail();
+            cmd.CommandText = "SELECT [Id], [Title], [Description], [Content], [Createon] FROM [dbo].[Post] WHERE [Id] = " + cid;
+            cmd.Connection = con;
+
+            con.Open();
+
+            reader = cmd.ExecuteReader();
+            if (reader.HasRows)
+            {
+                while (reader.Read())
+                {
+                    detailView.Id = reader.GetInt32(0);
+                    detailView.Title = reader.GetString(1);
+                    detailView.Description = reader.GetString(2);
+                    detailView.Content = reader.GetString(3);
+                    detailView.CreatedOn = reader.GetDateTime(4);
+                }
+            }
+            con.Close();
+            cmd.CommandText = "SELECT [Comment] FROM [dbo].[Comment] WHERE [Post_id] = " + cid;
+            con.Open();
+            reader = cmd.ExecuteReader();
+            List<string> commentList = new List<string>();
+            if (reader.HasRows)
+            {
+                while (reader.Read())
+                {
+                    commentList.Add(reader.GetString(0));
+                }
+            }
+            else
+            {
+                commentList.Add("Keine Kommentare vorhanden");
+            }
+            detailView.CommentList = commentList;
+            return View(detailView);
+        }
         public ActionResult Contact()
         {
             ViewBag.Message = "Your contact page.";
