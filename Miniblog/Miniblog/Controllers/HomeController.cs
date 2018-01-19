@@ -65,10 +65,10 @@ namespace Miniblog.Controllers
         {
 
             var username = Request["username"];
-            //MD5 md5 = new MD5CryptoServiceProvider();
-            //Byte[] originalBytes = ASCIIEncoding.Default.GetBytes(Request["password"]);
-            //Byte[] encodeBytes = md5.ComputeHash(originalBytes);
-            var password = Request["password"];
+            MD5 md5 = new MD5CryptoServiceProvider();
+            Byte[] originalBytes = ASCIIEncoding.Default.GetBytes(Request["password"]);
+            Byte[] encodeBytes = md5.ComputeHash(originalBytes);
+            string password = BitConverter.ToString(encodeBytes).ToLower().Replace("-", "");
             int userId = 0;
 
             SqlConnection con = new SqlConnection();
@@ -77,7 +77,6 @@ namespace Miniblog.Controllers
             SqlCommand cmd = new SqlCommand();
             SqlDataReader reader;
 
-            //cmd.CommandText = "INSERT INTO [dbo].[User] (Vorname, Nachname, Phonenumber, Username, Password, Role, Status) VALUES ('asdf', 'asdf', 41793536573, 'asdf', 'asdf', 'User', 0)";
             cmd.CommandText = "SELECT [Id], [Username], [Password], [Phonenumber] FROM [dbo].[User] WHERE [Username] = '" + username + "' AND [Password] = '" + password + "'";
             cmd.Connection = con;
 
@@ -97,7 +96,6 @@ namespace Miniblog.Controllers
                         byte[] time = BitConverter.GetBytes(DateTime.UtcNow.ToBinary());
                         byte[] key = Guid.NewGuid().ToByteArray();
                         var secret = Convert.ToBase64String(time.Concat(key).ToArray());
-                        //var secret = "Test";
 
                         string expiry = DateTime.Now.AddMinutes(5).ToString("yyyy-MM-dd HH:mm:ss");
 
@@ -105,7 +103,6 @@ namespace Miniblog.Controllers
                         {
                             SqlCommand cmd2 = new SqlCommand();
                             cmd2.CommandText = "INSERT INTO [dbo].[Token] (User_id, Tokenstring, Expiry) VALUES ('" + userId + "', '" + secret + "', '" + expiry + "')";
-                            //cmd2.CommandText = "INSERT INTO [dbo].[Token] (Id, User_id, Tokenstring, Expiry) VALUES (22, '" + userId + "', '12345678901234567890', '" + expiry + "')";
                             cmd2.Connection = conection;
                             conection.Open();
                             cmd2.ExecuteNonQuery();
